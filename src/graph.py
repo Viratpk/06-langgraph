@@ -1,14 +1,28 @@
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import START
+from langgraph.graph import StateGraph
+from langgraph.graph import END
+
+from langgraph.prebuilt import ToolNode
+from langgraph.prebuilt import tools_condition
 
 from state import State
-from nodes import chatbot
+from chatbot import chatbot
+from tools import tools
 
 
-graph_builder = StateGraph(State)
+builder = StateGraph(State)
 
-graph_builder.add_node("chatbot", chatbot)
+builder.add_node("chatbot", chatbot)
 
-graph_builder.add_edge(START, "chatbot")
-graph_builder.add_edge("chatbot", END)
+builder.add_node("tools", ToolNode(tools))
 
-graph = graph_builder.compile()
+builder.add_edge(START, "chatbot")
+
+builder.add_conditional_edges(
+    "chatbot",
+    tools_condition,
+)
+
+builder.add_edge("tools", "chatbot")
+
+graph = builder.compile()
