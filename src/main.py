@@ -2,15 +2,18 @@ from langchain_core.messages import HumanMessage
 
 from graph import graph
 
+config = {"configurable": {"thread_id": "virat"}}
 
 while True:
-    question = input("\nAsk > ")
+    question = input("Ask > ")
 
     if question.lower() == "exit":
         break
 
-    response = graph.invoke({"messages": [HumanMessage(content=question)]})
-
-    print("\n========== RESPONSE ==========\n")
-
-    print(response["messages"][-1].content)
+    for event in graph.stream(
+        {"messages": [HumanMessage(content=question)]},
+        config=config,
+    ):
+        for value in event.values():
+            if "messages" in value:
+                print(value["messages"][-1].content)
